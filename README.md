@@ -41,6 +41,6 @@ This intentionally vulnerable code is designed to:
 ### Clone & Run
 
 ```bash
-git clone https://github.com/your-username/file-inclusion-ctf.git
+git clone https://github.com/imusabkhan/Training.git
 cd file-inclusion-ctf
 mvn spring-boot:run
