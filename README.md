@@ -42,6 +42,7 @@ This intentionally vulnerable code is designed to:
 
 ```bash
 git clone https://github.com/imusabkhan/Training.git
-cd file-inclusion-ctf
-mvn clean install
-mvn spring-boot:run
+cd Training
+docker compose build
+docker compose -f docker-compose.yml up
+curl http://localhost:80
