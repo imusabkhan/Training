@@ -46,3 +46,6 @@ cd Training
 docker compose build
 docker compose -f docker-compose.yml up
 curl http://localhost:80
+
+# 🧩 Microservice Labs for Local File Inclusion (LFI)
+curl http://localhost:80/internal
