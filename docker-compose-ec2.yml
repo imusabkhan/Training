@@ -5,6 +5,12 @@ services:
     image: shazsyed/bazaar-file-inclusion-ctf:latest
     ports:
       - "8080:8080"  # Optional if you need direct access
+    volumes:
+      # Per-level flag files (each level reads its own, so flags differ)
+      - ./flags/flag1.txt:/app/flag1.txt:ro   # /dr-strange
+      - ./flags/flag2.txt:/app/flag2.txt:ro   # /captain-america
+      - ./flags/flag3.txt:/app/flag3.txt:ro   # /deadpool
+      - ./flags/flag4.txt:/app/flag4.txt:ro   # /goku
     networks:
       - ctf-network
 
@@ -12,6 +18,14 @@ services:
     image: shazsyed/bazaar-lfi-lab-microservice:latest
     ports:
       - "8087:8087"  # Optional if you need direct access
+    networks:
+      - ctf-network
+
+  login-app:
+    image: php:8.2-apache
+    volumes:
+      - ./login-app:/var/www/html:ro          # vulnerable login page (SQLi auth bypass)
+      - ./flags/flag_login.txt:/flags/flag_login.txt:ro
     networks:
       - ctf-network
 
@@ -24,6 +38,7 @@ services:
     depends_on:
       - file-inclusion-ctf
       - lfi-lab-microservice
+      - login-app
     networks:
       - ctf-network
 
