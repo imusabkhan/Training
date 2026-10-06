@@ -256,71 +256,58 @@ $levels = [
         .objectives ul{grid-template-columns:1fr}
         .flagbanner .flag{margin-left:0;width:100%}
     }
+    /* ===== Challenge 0 solved — compact success (labs are delivered via the platform) ===== */
+    .win{text-align:center}
+    .win .seal2{width:64px;height:64px;margin:6px auto 14px;border-radius:50%;display:grid;place-items:center;
+        background:radial-gradient(circle,rgba(5,150,105,.16),transparent 70%);border:1.5px solid rgba(5,150,105,.45);
+        box-shadow:0 8px 26px -6px rgba(5,150,105,.4);animation:pop .55s cubic-bezier(.2,1.4,.4,1) both}
+    @keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+    .win .seal2 svg{width:32px;height:32px}
+    .win h2{font-family:'Space Grotesk',sans-serif;font-size:23px;color:var(--green);margin-bottom:4px;letter-spacing:.3px}
+    .win .who{color:var(--muted);font-size:13px;line-height:1.5}
+    .win .who b{color:var(--txt)}
+    .win .flagbox{margin:20px 0 6px;font-family:'JetBrains Mono',monospace;font-size:15px;color:#047857;
+        background:rgba(5,150,105,.07);border:1px dashed rgba(5,150,105,.6);border-radius:12px;padding:15px;word-break:break-all}
+    .win .flagbox span{display:block;font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
+    .win .clue{margin:22px 0 2px;text-align:left;position:relative;padding:15px 18px;border-radius:14px;overflow:hidden;
+        background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(8,145,178,.05));border:1px solid var(--line)}
+    .win .clue::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--violet),var(--cyan))}
+    .win .clue .lbl{display:flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;
+        text-transform:uppercase;color:var(--violet);margin-bottom:9px}
+    .win .clue .lbl .blink{width:7px;height:7px;border-radius:50%;background:var(--violet);animation:bl 1.4s steps(1) infinite}
+    @keyframes bl{50%{opacity:.25}}
+    .win .clue p{font-family:'Inter',sans-serif;font-style:italic;font-size:14.5px;line-height:1.65;color:var(--txt);margin:0}
+    .win .clue p b{color:var(--violet);font-style:normal;font-weight:600}
+    .win .so{display:inline-block;margin-top:18px;color:var(--muted);font-size:12px;text-decoration:none;font-family:'JetBrains Mono',monospace}
+    .win .so:hover{color:var(--accent)}
 </style>
 </head>
-<body class="<?= $authed ? 'dash' : '' ?>">
+<body>
 <div class="aurora"><span class="b1"></span><span class="b2"></span><span class="b3"></span></div>
 <div class="grid"></div>
 
 <?php if ($authed): ?>
-  <!-- ============ POST-LOGIN DASHBOARD ============ -->
-  <div class="dashwrap">
-    <div class="topbar">
+  <!-- ============ CHALLENGE 0 SOLVED (labs continue on the CTF platform) ============ -->
+  <div class="wrap">
+    <div class="card">
       <div class="brand">
         <div class="logo">
           <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
         </div>
-        <div><h1>Sentinel</h1><div class="sub">File Inclusion CTF</div></div>
+        <div><h1>Sentinel</h1><div class="sub">Secure Access</div></div>
       </div>
-      <div>
-        <span class="pill"><span class="live"></span> authenticated as <?= htmlspecialchars($who) ?></span>
-        <a class="logout" href="/?logout=1">sign out</a>
-      </div>
-    </div>
-
-    <div class="flagbanner">
-      <div class="seal"><svg viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></div>
-      <div class="msg">
+      <div class="win">
+        <div class="seal2"><svg viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></div>
         <h2>Authentication bypassed 🎉</h2>
-        <p>SQL injection defeated the login. Grab your flag, then tackle the levels below.</p>
-      </div>
-      <div class="flag"><span>Challenge 0 flag</span><?= htmlspecialchars($loginFlag) ?></div>
-    </div>
-
-    <p class="intro">This lab is a guided tour of <b>Local File Inclusion &amp; Path Traversal</b>. Each level reads a file you name — but the input passes through a different (broken) defense. Work them in order; every level hides its own flag one directory up. Type a filename and hit <b>Read File</b> to send it to that endpoint.</p>
-
-    <div class="cards">
-      <?php foreach ($levels as $lv): ?>
-        <div class="lvl <?= $lv['cls'] ?>">
-          <div class="head"><span class="num">LVL <?= $lv['n'] ?></span> <?= htmlspecialchars($lv['title']) ?></div>
-          <div class="body">
-            <div class="desc"><?= htmlspecialchars($lv['desc']) ?></div>
-            <form action="<?= $lv['ep'] ?>" method="get">
-              <input type="text" name="filename" placeholder="Enter a filename…" autocomplete="off">
-              <button type="submit">Read File →</button>
-            </form>
-            <div class="path">endpoint: <?= htmlspecialchars($lv['ep']) ?></div>
-          </div>
+        <div class="who">signed in as <b><?= htmlspecialchars($who) ?></b> — and you never did have the password, did you?</div>
+        <div class="flagbox"><span>Challenge 0 flag</span><?= htmlspecialchars($loginFlag) ?></div>
+        <div class="clue">
+          <div class="lbl"><span class="blink"></span> your next move</div>
+          <p>One lock down — but the vault isn't empty. A file rests somewhere behind this door that was <b>never meant to leave its folder</b>, and the walls keeping it in are thinner than they look. Find the way out they forgot to seal.</p>
         </div>
-      <?php endforeach; ?>
+        <a class="so" href="/?logout=1">sign out</a>
+      </div>
     </div>
-
-    <div class="objectives">
-      <h3>Challenge Objectives</h3>
-      <ul>
-        <li><span class="ico">🔍</span><div><b>Find &amp; read</b> the hidden flag file at each level.</div></li>
-        <li><span class="ico">🧠</span><div><b>Understand</b> the bypass technique behind every filter.</div></li>
-        <li><span class="ico">🚧</span><div><b>Learn</b> why blacklists and single-pass sanitizers fail.</div></li>
-        <li><span class="ico">🛠️</span><div><b>Explore</b> path-traversal variants: encoding, dot-segments, unicode.</div></li>
-      </ul>
-    </div>
-
-    <div class="toolbar">
-      <a class="hints" href="/hints">Need Hints? 💡</a>
-      <a class="ghost" href="/challenges">Classic challenge index</a>
-    </div>
-
-    <div class="foot"><span class="dot">●</span> Sentinel &nbsp;·&nbsp; © 2026 &nbsp;·&nbsp; <span class="dot">authorized training use only</span></div>
   </div>
 
 <?php else: ?>
