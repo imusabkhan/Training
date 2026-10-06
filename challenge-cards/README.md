@@ -1,4 +1,4 @@
-# 🎯 Challenge Cards — NIGHTFALL Security-Awareness Lab
+# 🎯 Challenge Cards — Sentinel Security-Awareness Lab
 
 Fun, player-facing cards for each lab: catchy title, story description, flag, tiered hints, and a vulnerable-line explanation. One file per challenge — paste straight into your platform.
 

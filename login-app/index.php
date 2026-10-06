@@ -1,6 +1,6 @@
 <?php
 // ==========================================================================
-//  NIGHTFALL // Secure Access Console  —  DELIBERATELY VULNERABLE
+//  Sentinel // Secure Access Console  —  DELIBERATELY VULNERABLE
 //  Challenge 0: SQL Injection authentication bypass.
 //  Part of the File Inclusion CTF Lab. For local, authorized training only.
 // ==========================================================================
@@ -41,8 +41,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
 
+    // *** "Hardening" (Variation A): strip SQL comment sequences so the classic
+    // *** comment-out trick ( admin'-- ) no longer works. The input is STILL
+    // *** concatenated into the query, so boolean-logic injection remains possible
+    // *** (e.g.  admin' OR '1'='1 ) — the attacker just has to think a bit more.
+    $strip = ['--', '#', '/*', '*/'];
+    $username = str_replace($strip, '', $username);
+    $password = str_replace($strip, '', $password);
+
     // !!! VULNERABLE: user input concatenated straight into the SQL string.
-    // !!! No parameterization, no escaping. This is the bug the lab teaches.
     $query = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";
 
     try {
@@ -85,7 +92,7 @@ $levels = [
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NIGHTFALL // Secure Access</title>
+<title>Sentinel // Secure Access</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -263,7 +270,7 @@ $levels = [
         <div class="logo">
           <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
         </div>
-        <div><h1>NIGHTFALL</h1><div class="sub">File Inclusion CTF</div></div>
+        <div><h1>Sentinel</h1><div class="sub">File Inclusion CTF</div></div>
       </div>
       <div>
         <span class="pill"><span class="live"></span> authenticated as <?= htmlspecialchars($who) ?></span>
@@ -313,7 +320,7 @@ $levels = [
       <a class="ghost" href="/challenges">Classic challenge index</a>
     </div>
 
-    <div class="foot"><span class="dot">●</span> NIGHTFALL &nbsp;·&nbsp; © 2026 &nbsp;·&nbsp; <span class="dot">authorized training use only</span></div>
+    <div class="foot"><span class="dot">●</span> Sentinel &nbsp;·&nbsp; © 2026 &nbsp;·&nbsp; <span class="dot">authorized training use only</span></div>
   </div>
 
 <?php else: ?>
@@ -324,7 +331,7 @@ $levels = [
         <div class="logo">
           <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path><circle cx="12" cy="15" r="1.4" fill="#fff" stroke="none"></circle></svg>
         </div>
-        <div><h1>NIGHTFALL</h1><div class="sub">Secure Access</div></div>
+        <div><h1>Sentinel</h1><div class="sub">Secure Access</div></div>
       </div>
 
       <p class="tag">Welcome back. Sign in to your account to continue.</p>
@@ -350,7 +357,7 @@ $levels = [
       </form>
 
       <p class="signup">Don't have an account? <a href="#">Request access</a></p>
-      <div class="foot"><span class="dot">●</span> NIGHTFALL &nbsp;·&nbsp; © 2026 &nbsp;·&nbsp; <span class="dot">Secure connection</span></div>
+      <div class="foot"><span class="dot">●</span> Sentinel &nbsp;·&nbsp; © 2026 &nbsp;·&nbsp; <span class="dot">Secure connection</span></div>
     </div>
   </div>
 <?php endif; ?>

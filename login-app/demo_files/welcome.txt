@@ -1,4 +1,0 @@
-Welcome to the NIGHTFALL demo lab!
-
-This is an ordinary text file inside the demo_files/ folder.
-Nothing secret here — try climbing OUT of this folder to find the flag.
