@@ -24,7 +24,7 @@ services:
   login-app:
     image: php:8.2-apache
     volumes:
-      - ./login-app:/var/www/html:ro          # vulnerable login page (SQLi auth bypass)
+      - ./login-app:/var/www/html:ro          # vulnerable login page (SQLi auth bypass) + /demo
       - ./flags/flag_login.txt:/flags/flag_login.txt:ro
     networks:
       - ctf-network
