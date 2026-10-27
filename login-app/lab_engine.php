@@ -161,7 +161,10 @@ $steps = $sess['steps'];
   :root{--bg:#eef1fb;--panel:rgba(255,255,255,.78);--line:rgba(99,102,241,.16);--txt:#1a1f36;--muted:#6b7396;
     --cyan:#0891b2;--violet:#7c3aed;--pink:#db2777;--green:#059669;--amber:#d97706;--red:#e11d48;--accent:#6366f1;}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Inter',system-ui,sans-serif;color:var(--txt);background:var(--bg);min-height:100vh;padding:26px 20px 60px;position:relative;overflow-x:hidden}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--txt);background:var(--bg);min-height:100vh;padding:26px 20px 60px;position:relative;overflow-x:hidden;
+    /* disable programming ligatures so ".." never renders as a single combined dot */
+    font-feature-settings:"liga" 0,"calt" 0;font-variant-ligatures:none}
+  input,code,.tree,.viewer,.flagbox{font-feature-settings:"liga" 0,"calt" 0;font-variant-ligatures:none}
   .aurora{position:fixed;inset:-30%;z-index:0;filter:blur(85px);opacity:.5;pointer-events:none}
   .aurora span{position:absolute;border-radius:50%;mix-blend-mode:multiply}
   .aurora .b1{width:46vw;height:46vw;left:0;top:0;background:radial-gradient(circle,#c4b5fd,transparent 62%)}
